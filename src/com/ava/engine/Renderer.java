@@ -4,6 +4,8 @@ import java.awt.image.DataBufferInt;
 
 import com.ava.engine.gfx.Font;
 import com.ava.engine.gfx.Image;
+import com.ava.engine.gfx.ImageTile;
+
 public class Renderer {
     private int pw,ph;
     private int[] p;
@@ -21,7 +23,7 @@ public class Renderer {
             p[i] = 0;
     }
   public void setPixel(int x,int y, int value){
-        if((x<0 || x>= pw || y<0 || y>=ph)||( (value >> 24) & 0xff)==0)
+        if((x<0 || x>= pw || y<0 || y>=ph)||((value >> 24)& 0xff) ==0)
             return;
   p[x + y*pw] = value;
     }
@@ -66,6 +68,28 @@ public class Renderer {
         for(int y=newY;y<newHeight;y++){
             for(int x=newX;x<newWidth;x++){
             setPixel(x+offX,y+offY, image.getP()[x+y*image.getW()]);
+            }
+        }
+    }
+
+    public void drawImageTile(ImageTile image, int offX, int offY, int tileX, int tileY){
+        if(offX < -image.getTileW()) return;
+        if(offY < -image.getTileH()) return;
+        if(offX >= pw) return;
+        if(offY >= ph) return;
+        int newX=0;
+        int newY=0;
+        int newWidth= image.getTileW();
+        int newHeight = image.getTileH();
+
+        //clipping code
+        if(offX<0) newX -= offX;
+        if(offY<0) newY -= offY;
+        if( newWidth + offX > pw){newWidth -= (newWidth + offX -pw);}
+        if( newHeight + offY > ph){newHeight -=(newHeight + offY -ph);}
+        for(int y=newY;y<newHeight;y++){
+            for(int x=newX;x<newWidth;x++){
+                setPixel(x+offX,y+offY, image.getP()[(x + tileX + image.getTileW())+(y+ tileY+image.getTileH())*image.getW()]);
             }
         }
     }

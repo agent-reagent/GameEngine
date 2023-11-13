@@ -5,6 +5,7 @@ import com.ava.engine.GameContainer;
 import com.ava.engine.Renderer;
 import com.ava.engine.audio.SoundClip;
 import com.ava.engine.gfx.Image;
+import com.ava.engine.gfx.ImageTile;
 
 import java.awt.event.KeyEvent;
 
@@ -12,7 +13,7 @@ public class GameManager extends AbstractGame{
     private Image image;
     private SoundClip clip;
     public GameManager() {
-        image = new Image("/test.jpg");
+        image = new Image("/pointer.png");
         clip = new SoundClip("/audio.wav");
     }
 
@@ -21,13 +22,21 @@ public class GameManager extends AbstractGame{
 //if(gc.getInput().isKeyDown(KeyEvent.VK_E))
   if(gc.getInput().getScroll()>0)
       clip.play();
+  temp+=dt;
+  if(temp>3){
+      temp=0;
+  }
+    }
+    float temp =0;
+    @Override
+    public void render(GameContainer gc, Renderer r){
+        r.drawImage(image,gc.getInput().getMouseX()  -8,gc.getInput().getMouseY() -8);
+//   r.drawfillRect(gc.getInput().getMouseX()-16,gc.getInput().getMouseY()-16,32,32,0xffffccff);
+
+
     }
 
-    @Override
-    public void render(GameContainer gc, Renderer r) {
-r.drawImage(image,gc.getInput().getMouseX() -32,gc.getInput().getMouseY()-32);
-   r.drawfillRect(gc.getInput().getMouseX()-16,gc.getInput().getMouseY()-16,32,32,0xffffccff);
-    }
+
 
     public static void main(String[] args) {
         GameContainer gc = new GameContainer(new GameManager());
