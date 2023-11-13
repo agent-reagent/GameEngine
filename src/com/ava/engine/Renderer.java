@@ -21,7 +21,7 @@ public class Renderer {
             p[i] = 0;
     }
   public void setPixel(int x,int y, int value){
-        if((x<0 || x>= pw || y<0 || y>=ph)|| value ==0xffff00ff)
+        if((x<0 || x>= pw || y<0 || y>=ph)||( (value >> 24) & 0xff)==0)
             return;
   p[x + y*pw] = value;
     }
