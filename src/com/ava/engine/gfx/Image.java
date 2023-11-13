@@ -7,6 +7,15 @@ import java.io.IOException;
 public class Image {
     private int w,h;
     private int[] p;
+    private boolean alpha = false;
+    public boolean isAlpha() {
+        return alpha;
+    }
+
+    public void setAlpha(boolean alpha) {
+        this.alpha = alpha;
+    }
+
 
     public Image(String path) {
         BufferedImage image =null;

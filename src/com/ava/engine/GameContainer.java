@@ -77,6 +77,7 @@ private String title= "AvaEngine";
         //TODO: RENDER GAME
         renderer.clear();
         game.render(this,renderer);
+        renderer.process();
         renderer.drawText("FPS:"+fps,0,0,0xff00ffff );
 
         window.update();

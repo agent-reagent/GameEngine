@@ -1,30 +1,82 @@
 package com.ava.engine;
 
 import java.awt.image.DataBufferInt;
+import java.util.ArrayList;
 
 import com.ava.engine.gfx.Font;
 import com.ava.engine.gfx.Image;
+import com.ava.engine.gfx.ImageRequest;
 import com.ava.engine.gfx.ImageTile;
 
 public class Renderer {
+    private ArrayList<ImageRequest> imageRequest = new ArrayList<ImageRequest>();
     private int pw,ph;
     private int[] p;
+    private int[] zb;
+    private int zDepth = 0;
+    private boolean processing = true;
+
+    public int getzDepth() {
+        return zDepth;
+    }
+
+    public void setzDepth(int zDepth) {
+        this.zDepth = zDepth;
+    }
+
+
+    //z buffer, if we have an opaque image overlaying a transparent one,this buffer handles it
     private Font font  = Font.STANDARD;
 
     public Renderer(GameContainer gc) {
          pw = gc.getWidth();
          ph = gc.getHeight();
          p = ((DataBufferInt)gc.getWindow().getImage().getRaster().getDataBuffer()).getData();
-
+       zb = new int[p.length];
     }
 
     public void clear(){
-        for(int i=0;i<p.length;i++)
+        for(int i=0;i<p.length;i++){
             p[i] = 0;
+        zb[i]=0;//default state
     }
+    }
+    public void process(){
+        processing = true;
+        for(int i=0;i<imageRequest.size();i++){
+            ImageRequest ir = imageRequest.get(i);
+            setzDepth(ir.zDepth);
+            ir.image.setAlpha(false);
+            drawImage(ir.image, ir.offX, ir.offY);
+        }
+        imageRequest.clear();
+        processing=false;
+    }
+
   public void setPixel(int x,int y, int value){
-        if((x<0 || x>= pw || y<0 || y>=ph)||((value >> 24)& 0xff) ==0)
+        int alpha = (value >> 24)& 0xff;
+        if((x<0 || x>= pw || y<0 || y>=ph)||(alpha) ==0)
             return;
+        if(zb[x+ y*pw] > zDepth)
+            return;
+        if(alpha == 255)
+            p[x+ y*pw] =value;
+        else {
+            int pixelColor = p[x+ y*pw];
+
+            int newRed = ((pixelColor >> 16 )& 0xff)- (int)((((pixelColor >> 16) & 0xff) -( (value >> 16) & 0xff)) *(alpha/255f));
+            int newGreen = ((pixelColor >> 8) & 0xff) - (int)((((pixelColor >> 8) & 0xff) - ((value >> 8) & 0xff)) *(alpha/255f));
+            int newBlue = (pixelColor & 0xff) - (int)(((pixelColor  & 0xff)- (value   & 0xff)) *(alpha/255f));
+//            newRed = Math.max(0, Math.min(255, newRed));
+//            newGreen = Math.max(0, Math.min(255, newGreen));
+//            newBlue = Math.max(0, Math.min(255, newBlue));
+            System.out.println(newRed+ " "+ newGreen +" "+ newBlue);
+            p[x+ y*pw]=(255 << 24 | newRed << 16 | newGreen << 8 | newBlue);
+        }
+
+            //means transparent pixel
+
+
   p[x + y*pw] = value;
     }
     int offset =0;
@@ -49,7 +101,9 @@ public class Renderer {
         //offx and offy are the mouse inputs which offset the posn of the image
 
 
-
+ if(image.isAlpha() && !processing){
+     imageRequest.add(new ImageRequest(image,zDepth,offX,offY));return;
+ }
         //dont render code
         if(offX < -image.getW()) return;
         if(offY < -image.getH()) return;

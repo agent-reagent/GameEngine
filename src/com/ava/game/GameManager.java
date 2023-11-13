@@ -2,6 +2,7 @@ package com.ava.game;
 
 import com.ava.engine.AbstractGame;
 import com.ava.engine.GameContainer;
+import com.ava.engine.Input;
 import com.ava.engine.Renderer;
 import com.ava.engine.audio.SoundClip;
 import com.ava.engine.gfx.Image;
@@ -11,10 +12,14 @@ import java.awt.event.KeyEvent;
 
 public class GameManager extends AbstractGame{
     private Image image;
+    private Image image1;
     private SoundClip clip;
     public GameManager() {
-        image = new Image("/pointer.png");
+        image = new Image("/pointerf.png");
+        image1 = new Image("/pointer.png");
         clip = new SoundClip("/audio.wav");
+     image.setAlpha(true);
+
     }
 
     @Override
@@ -30,8 +35,9 @@ public class GameManager extends AbstractGame{
     float temp =0;
     @Override
     public void render(GameContainer gc, Renderer r){
+
         r.drawImage(image,gc.getInput().getMouseX()  -8,gc.getInput().getMouseY() -8);
-//   r.drawfillRect(gc.getInput().getMouseX()-16,gc.getInput().getMouseY()-16,32,32,0xffffccff);
+   r.drawfillRect(0,0,32,32,0xffffccff);
 
 
     }
